@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,10 +12,21 @@ namespace RandomMercenarySkin
         public struct MercenarySkin
         {
             public string Name;
-            public List<int> Id;
+            public List<MercenarySkinVariation> Variations;
             public bool hasDiamond;
             public int Diamond;
             public int Default;
+        }
+
+        public struct MercenarySkinVariation
+        {
+            public int ID;
+            public TAG_PREMIUM Premium;
+
+            public override string ToString()
+            {
+                return $"dbfId={ID}, premium={Premium}";
+            }
         }
 
         public static List<MercenarySkin> CacheMercenarySkin = new List<MercenarySkin>();
@@ -24,34 +36,25 @@ namespace RandomMercenarySkin
             public static void UpdateMercenarySkin()
             {
                 CacheMercenarySkin.Clear();
-                foreach (var merc in GameDbf.LettuceMercenary.GetRecords())
+                var allMercenaries = CollectionManager.Get().FindMercenaries().m_mercenaries;
+                foreach (var merc in allMercenaries)
                 {
-
-                    if (merc != null && merc.MercenaryArtVariations.Count > 0)
+                    if (merc != null && merc.m_artVariations.Count > 0)
                     {
                         MercenarySkin mercSkin = new MercenarySkin
                         {
-                            Name = merc.MercenaryArtVariations.First().CardRecord.Name.GetString(),
-                            Id = new List<int>(),
-                            hasDiamond = false
+                            Name = merc.m_artVariations.First().m_record.CardRecord.Name.GetString(),
+                            Variations = new List<MercenarySkinVariation>(),
                         };
-                        foreach (var art in merc.MercenaryArtVariations.OrderBy(x => x.ID).ToList())
+                        foreach (var art in merc.m_artVariations.OrderBy(x => x.m_record.ID).ToList())
                         {
                             if (art != null)
                             {
-                                mercSkin.Id.Add(art.CardId);
-                                if (art.DefaultVariation)
-                                {
-                                    mercSkin.Default = art.CardId;
-                                }
-                                foreach (var premiums in art.MercenaryArtVariationPremiums)
-                                {
-                                    if (premiums != null && premiums.Premium == Assets.MercenaryArtVariationPremium.MercenariesPremium.PREMIUM_DIAMOND)
-                                    {
-                                        mercSkin.hasDiamond = true;
-                                        mercSkin.Diamond = art.CardId;
-                                    }
-                                }
+                                var variation = new MercenarySkinVariation {
+                                    ID = art.m_record.CardId,
+                                    Premium = art.m_premium,
+                                };
+                                mercSkin.Variations.Add(variation);
                             }
                         }
                         CacheMercenarySkin.Add(mercSkin);
@@ -70,7 +73,7 @@ namespace RandomMercenarySkin
 
             foreach (var mercSkin in CacheMercenarySkin)
             {
-                if (mercSkin.Id.Contains(dbid))
+                if (mercSkin.Variations.Select(v => v.ID).Contains(dbid))
                 {
                     skin = mercSkin;
                     return true;

@@ -2,7 +2,10 @@
 using UnityEngine;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
 using System;
+using Assets;
+using static DefLoader;
 
 namespace RandomMercenarySkin
 {
@@ -18,7 +21,7 @@ namespace RandomMercenarySkin
         }
     }
 
-    // Implementation from https://github.com/Pik-4/HsMod/blob/master/HsMod/Patcher.cs#L1955
+    // Implementation insired by https://github.com/Pik-4/HsMod/blob/master/HsMod/Patcher.cs#L1955
     public static class EntityPatcher
     {
         [HarmonyPatch(typeof(Entity), "LoadCard", new Type[] { typeof(string), typeof(Entity.LoadCardData) })]
@@ -29,12 +32,12 @@ namespace RandomMercenarySkin
             {
                 if (__instance.GetCard().GetControllerSide() == Player.Side.FRIENDLY)
                 {
-                    List<int> dbids = new List<int>();
-                    dbids.AddRange(skin.Id);
-                    dbids.Remove(skin.Diamond);
-                    var dbid = dbids[UnityEngine.Random.Range(0, dbids.Count)];
-                    RandomMercenarySkinMod.SharedLogger.Msg($"Getting random skin: {dbid} out of {dbids.Count} skins");
-                    cardId = GameUtils.TranslateDbIdToCardId(dbid);
+                    var randomIndex = UnityEngine.Random.Range(0, skin.Variations.Count);
+                    var variation = skin.Variations[randomIndex];
+                    __instance.SetTag(GAME_TAG.PREMIUM, variation.Premium);
+                    __instance.SetRealTimePremium(variation.Premium);
+                    cardId = GameUtils.TranslateDbIdToCardId(variation.ID);
+                    RandomMercenarySkinMod.SharedLogger.Msg($"Getting random skin: {cardId} ({variation}) out of {skin.Variations.Count} skins (randomIndex: {randomIndex}): {string.Join(", ", skin.Variations)}");
                 }
             }
             return true;

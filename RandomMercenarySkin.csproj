@@ -51,6 +51,10 @@
     <Reference Include="bHapticsLib">
       <HintPath>..\..\..\..\Games\Hearthstone\MelonLoader\bHapticsLib.dll</HintPath>
     </Reference>
+    <Reference Include="Blizzard.T5.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Games\Hearthstone\Hearthstone_Data\Managed\Blizzard.T5.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Blizzard.T5.UberText.Runtime">
       <HintPath>..\..\..\..\Games\Hearthstone\Hearthstone_Data\Managed\Blizzard.T5.UberText.Runtime.dll</HintPath>
     </Reference>
