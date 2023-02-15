@@ -28,6 +28,10 @@ namespace RandomMercenarySkin
         [HarmonyPrefix]
         public static bool Prefix(Entity __instance, ref string cardId)
         {
+            if (!GameMgr.Get().IsMercenaries())
+            {
+                return true;
+            }
             if (cardId != null && Utils.IsMercenarySkin(cardId, out Utils.MercenarySkin skin))
             {
                 if (__instance.GetCard().GetControllerSide() == Player.Side.FRIENDLY)
